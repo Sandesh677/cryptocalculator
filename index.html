@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crypto Profit Calculator</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css">
+    <script>
+        async function fetchLivePrices() {
+            const response = await fetch('/get_prices');
+            const data = await response.json();
+            if (data.error) {
+                alert(data.error);
+            } else {
+                document.getElementById('btc-price').innerText = `Bitcoin: $${data.bitcoin.usd}`;
+                document.getElementById('eth-price').innerText = `Ethereum: $${data.ethereum.usd}`;
+            }
+        }
+
+        async function calculateProfit(event) {
+            event.preventDefault();
+            const formData = new FormData(event.target);
+
+            const response = await fetch('/calculate', {
+                method: 'POST',
+                body: formData
+            });
+
+            const data = await response.json();
+            if (data.error) {
+                alert(data.error);
+            } else {
+                document.getElementById('result').innerText = `Profit: $${data.profit}`;
+            }
+        }
+
+        window.onload = fetchLivePrices;
+    </script>
+</head>
+<body class="bg-gray-100 text-gray-800">
+    <div class="container mx-auto p-6">
+        <h1 class="text-3xl font-bold text-center mb-6">Crypto Profit Calculator</h1>
+
+        <div class="text-center mb-4">
+            <p id="btc-price" class="text-lg font-semibold">Bitcoin: Fetching...</p>
+            <p id="eth-price" class="text-lg font-semibold">Ethereum: Fetching...</p>
+        </div>
+
+        <form onsubmit="calculateProfit(event)" class="bg-white p-6 rounded-lg shadow-md max-w-md mx-auto">
+            <div class="mb-4">
+                <label for="buy_price" class="block text-sm font-bold mb-2">Buy Price (per unit):</label>
+                <input type="number" name="buy_price" id="buy_price" required step="any"
+                       class="w-full p-2 border rounded-lg">
+            </div>
+
+            <div class="mb-4">
+                <label for="sell_price" class="block text-sm font-bold mb-2">Sell Price (per unit):</label>
+                <input type="number" name="sell_price" id="sell_price" required step="any"
+                       class="w-full p-2 border rounded-lg">
+            </div>
+
+            <div class="mb-4">
+                <label for="investment" class="block text-sm font-bold mb-2">Investment Amount:</label>
+                <input type="number" name="investment" id="investment" required step="any"
+                       class="w-full p-2 border rounded-lg">
+            </div>
+
+            <div class="mb-4">
+                <label for="fees" class="block text-sm font-bold mb-2">Trading Fees (optional):</label>
+                <input type="number" name="fees" id="fees" step="any"
+                       class="w-full p-2 border rounded-lg">
+            </div>
+
+            <button type="submit"
+                    class="w-full bg-blue-500 text-white font-bold py-2 px-4 rounded-lg hover:bg-blue-600">
+                Calculate Profit
+            </button>
+        </form>
+
+        <div id="result" class="text-center mt-6 text-xl font-semibold"></div>
+    </div>
+</body>
+</html>
