@@ -1,83 +1,49 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Crypto Profit Calculator</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css">
-    <script>
-        async function fetchLivePrices() {
-            const response = await fetch('/get_prices');
-            const data = await response.json();
-            if (data.error) {
-                alert(data.error);
-            } else {
-                document.getElementById('btc-price').innerText = `Bitcoin: $${data.bitcoin.usd}`;
-                document.getElementById('eth-price').innerText = `Ethereum: $${data.ethereum.usd}`;
-            }
-        }
-
-        async function calculateProfit(event) {
-            event.preventDefault();
-            const formData = new FormData(event.target);
-
-            const response = await fetch('/calculate', {
-                method: 'POST',
-                body: formData
-            });
-
-            const data = await response.json();
-            if (data.error) {
-                alert(data.error);
-            } else {
-                document.getElementById('result').innerText = `Profit: $${data.profit}`;
-            }
-        }
-
-        window.onload = fetchLivePrices;
-    </script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Crypto Futures P&L Calculator</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
 </head>
-<body class="bg-gray-100 text-gray-800">
-    <div class="container mx-auto p-6">
-        <h1 class="text-3xl font-bold text-center mb-6">Crypto Profit Calculator</h1>
+<body class="bg-gray-900 text-white min-h-screen flex items-center justify-center">
 
-        <div class="text-center mb-4">
-            <p id="btc-price" class="text-lg font-semibold">Bitcoin: Fetching...</p>
-            <p id="eth-price" class="text-lg font-semibold">Ethereum: Fetching...</p>
-        </div>
+  <div class="w-full max-w-lg bg-gray-800 p-6 rounded-2xl shadow-lg">
+    <h1 class="text-2xl font-bold mb-4 text-center text-yellow-400">Binance Futures P&L Calculator</h1>
 
-        <form onsubmit="calculateProfit(event)" class="bg-white p-6 rounded-lg shadow-md max-w-md mx-auto">
-            <div class="mb-4">
-                <label for="buy_price" class="block text-sm font-bold mb-2">Buy Price (per unit):</label>
-                <input type="number" name="buy_price" id="buy_price" required step="any"
-                       class="w-full p-2 border rounded-lg">
-            </div>
+    <div class="space-y-3">
+      <input id="tradeAmount" type="number" placeholder="Trade Amount (USDT)" class="w-full p-2 rounded text-black">
+      <input id="leverage" type="number" placeholder="Leverage (x)" class="w-full p-2 rounded text-black">
+      <input id="entryPrice" type="number" placeholder="Entry Price" class="w-full p-2 rounded text-black">
+      <input id="targetPrice" type="number" placeholder="Target Price" class="w-full p-2 rounded text-black">
+      <input id="stopLoss" type="number" placeholder="Stop Loss" class="w-full p-2 rounded text-black">
+      <input id="fee" type="number" placeholder="Trading Fee (%) Optional" class="w-full p-2 rounded text-black">
 
-            <div class="mb-4">
-                <label for="sell_price" class="block text-sm font-bold mb-2">Sell Price (per unit):</label>
-                <input type="number" name="sell_price" id="sell_price" required step="any"
-                       class="w-full p-2 border rounded-lg">
-            </div>
+      <select id="tradeType" class="w-full p-2 rounded text-black">
+        <option value="long">Long</option>
+        <option value="short">Short</option>
+      </select>
 
-            <div class="mb-4">
-                <label for="investment" class="block text-sm font-bold mb-2">Investment Amount:</label>
-                <input type="number" name="investment" id="investment" required step="any"
-                       class="w-full p-2 border rounded-lg">
-            </div>
-
-            <div class="mb-4">
-                <label for="fees" class="block text-sm font-bold mb-2">Trading Fees (optional):</label>
-                <input type="number" name="fees" id="fees" step="any"
-                       class="w-full p-2 border rounded-lg">
-            </div>
-
-            <button type="submit"
-                    class="w-full bg-blue-500 text-white font-bold py-2 px-4 rounded-lg hover:bg-blue-600">
-                Calculate Profit
-            </button>
-        </form>
-
-        <div id="result" class="text-center mt-6 text-xl font-semibold"></div>
+      <button onclick="calculatePL()" class="w-full bg-yellow-500 hover:bg-yellow-600 text-black font-bold py-2 rounded">Calculate</button>
     </div>
+
+    <div id="result" class="mt-6 p-4 bg-gray-700 rounded-lg hidden">
+      <h2 class="text-xl font-bold mb-2 text-yellow-400">Result</h2>
+      <p id="positionSize"></p>
+      <p id="profit"></p>
+      <p id="loss"></p>
+      <p id="riskReward"></p>
+      <p id="netProfit"></p>
+    </div>
+
+    <div class="mt-6 text-center">
+      <button onclick="fetchLatestPrice()" class="bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded">
+        Get Latest Price (BTCUSDT)
+      </button>
+      <p id="latestPrice" class="mt-2 text-sm text-gray-300"></p>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
 </body>
 </html>
